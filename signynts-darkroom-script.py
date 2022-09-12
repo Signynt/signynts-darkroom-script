@@ -3,6 +3,9 @@ import cv2
 from skimage import color
 import os
 from os import listdir
+from skimage import img_as_float
+from skimage import exposure
+import scipy.ndimage
 
 # global variables
 cutoff_margin = 10
@@ -11,6 +14,13 @@ QuantumRange = 65535
 GammaGlobal = 2.15
 
 # load image
+
+def normalize(image, low, high):
+    float = img_as_float(image)
+    p_low, p_high = np.percentile(float, (low, high))
+    rescale = exposure.rescale_intensity(float, in_range=(p_low, p_high))
+    normalized = rescale * QuantumRange/rescale.max()
+    return normalized
 
 def adjust_gamma(image, gamma):
     inv_gamma = 1.0 / gamma
@@ -78,9 +88,8 @@ def autocolor_image(image):
 
     return autocolored_image
 # process image
-
-def signynts_darkroom_script(file_input):
-    image_input = cv2.imread(file_input, cv2.IMREAD_UNCHANGED)
+ 
+def negative_inversion(image_input):
     r_input, g_input, b_input = cv2.split(image_input)
 
     # def find_gamma(image_input, cutoff_margin):
@@ -108,7 +117,39 @@ def signynts_darkroom_script(file_input):
     autoleveled_negative = autolevel_image(inverted_negative)
     autocolored_negative = autocolor_image(autoleveled_negative)
 
-    return autocolored_negative
+    return autocolored_negative, r_input
+
+def remove_noise(image, aggressiveness=7):
+    normalized = image/QuantumRange
+    inverted = 1-normalized
+    tmp = scipy.ndimage.convolve(inverted, np.ones((3,3)), mode='constant')
+    out = np.logical_and(tmp >= aggressiveness, inverted).astype(np.float32)
+    reverted = 1-out
+    unnormalized = reverted * QuantumRange
+    return unnormalized
+
+def dust_removal(infrared_image, inverted_image, r_channel):
+    normalized_infrared = normalize(infrared_image, 2, 99)
+    normalized_red = normalize(r_channel, 2, 99)
+
+    c = normalized_infrared/((normalized_red.astype('float')+1)/(QuantumRange+1))
+    divided = c*(c < QuantumRange)+QuantumRange*np.ones(np.shape(c))*(c > QuantumRange)
+
+    ret, threshold = cv2.threshold(divided,(QuantumRange-QuantumRange/1),QuantumRange,cv2.THRESH_BINARY)
+    
+    pass1 = remove_noise(threshold)
+    pass2 = remove_noise(pass1)
+    pass3 = remove_noise(pass2)
+
+    return pass3
+
+def signynts_darkroom_script(file_input):
+    layered, negative_input = cv2.imreadmulti(file_input, [], cv2.IMREAD_UNCHANGED) # it returns if the image is multilayered (layered)
+    inverted_image, r_channel = negative_inversion(negative_input[0])
+    dust_removed = dust_removal(negative_input[1], inverted_image, r_channel)
+    inverted_image = dust_removed
+
+    return inverted_image
 
 # actually process files
 
@@ -117,10 +158,14 @@ out_dir = 'output'
 
 os.makedirs(out_dir, exist_ok=True)
 
-filenames = os.listdir(in_dir)
+filenames = []
+
+for file in os.listdir(in_dir):
+    if file.endswith(".tif"):
+        filenames.append(file)
 
 for file in filenames: 
     print(file)
     filepath = in_dir + '/' + file
     image = signynts_darkroom_script(filepath)
-    cv2.imwrite(file, image.astype(np.uint16))
+    cv2.imwrite(out_dir + '/' + file, image.astype(np.uint16), params=(cv2.IMWRITE_TIFF_COMPRESSION, 5))
