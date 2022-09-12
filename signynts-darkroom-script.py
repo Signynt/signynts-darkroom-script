@@ -136,20 +136,35 @@ def dust_removal(infrared_image, inverted_image, r_channel):
     divided = c*(c < QuantumRange)+QuantumRange*np.ones(np.shape(c))*(c > QuantumRange)
 
     ret, threshold = cv2.threshold(divided,(QuantumRange-QuantumRange/1),QuantumRange,cv2.THRESH_BINARY)
+    inverted = QuantumRange - threshold
     
-    pass1 = remove_noise(threshold)
-    pass2 = remove_noise(pass1)
-    pass3 = remove_noise(pass2)
+    kernel = np.ones((5,5),np.uint8)
+    noise_removed = cv2.morphologyEx(inverted, cv2.MORPH_OPEN, kernel)
 
-    return pass3
+    mask = cv2.dilate(noise_removed, kernel, iterations = 1)
+
+    mask = QuantumRange - mask
+    
+    #gray_mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+    #gray_mask = cv2.filter2D(mask, cv2.CV_8U)
+
+    #radius = 10
+    #flags = cv2.INPAINT_TELEA #or use cv2.INPAINT_NS
+    #dust_removed = cv2.inpaint(inverted_image.astype(np.float32), mask, radius, flags=flags)
+
+    #return dust_removed
+    return mask
 
 def signynts_darkroom_script(file_input):
     layered, negative_input = cv2.imreadmulti(file_input, [], cv2.IMREAD_UNCHANGED) # it returns if the image is multilayered (layered)
     inverted_image, r_channel = negative_inversion(negative_input[0])
-    dust_removed = dust_removal(negative_input[1], inverted_image, r_channel)
-    inverted_image = dust_removed
+    if layered:
+        dust_removed = dust_removal(negative_input[1], inverted_image, r_channel)
+        combined = np.dstack((inverted_image, dust_removed))
+    else:
+        combined = inverted_image
 
-    return inverted_image
+    return combined
 
 # actually process files
 
