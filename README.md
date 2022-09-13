@@ -1,11 +1,11 @@
-> For a version that is entirely contained in Affinty Photo, see the old workflow [Signynt's Darkroom Macro](https://github.com/Signynt/signynts-darkroom-macro)
+> For a version that is entirely contained in Affinty Photo, see the old workflow [Signynt's Darkroom Macro](https://github.com/Signynt/signynts-darkroom-macro)  
 > For a version that uses imagemagick and runs in the Terminal, see [Signynt's Darkroom Shortcut](https://github.com/Signynt/signynts-darkroom-shortcut)
 
 # Signynt's Darkroom Script
-*Signynt's Darkroom Script* is a Python script that inverts film negative images, and detects dust and scratches.
+*Signynt's Darkroom Script* is a Python script that inverts film negative images, and detects dust and scratches.  
 It consists of a Python script and an Affinity Photo macro / Photoshop action if you would like to use the dust removal option.
 
-Using this script gives you quick access to high quality, neutral and ready to edit RAW images with just one click. It also optionally provides access to quick and high quality dust or scratch removal that is better than the scanning softwares automatic options.
+Using this script gives you quick access to high quality, neutral and ready to edit RAW images with just one click. It also optionally provides access to quick and high quality dust or scratch removal that is better than the scanning softwares automatic options.  
 The output is a 16bit TIFF file, that maintains all image information from the input file.
 
 It can be used with DSLR scans, and scans made with Silverfast. For use with VueScan or B&W images, please refer to [Signynt's Darkroom Shortcut](https://github.com/Signynt/signynts-darkroom-shortcut).
