@@ -17,6 +17,8 @@ It can be used with DSLR scans, and scans made with Silverfast. For use with Vue
 
 Download or clone this repository.
 
+To install the Affinity Photo macro, simply double click on `Signynt's Darkroom Shortcut v1.0.afmacros`
+
 ### Dependencies:
 Make sure you have these dependencies installed. If you are missing one the script will throw an error, and tell you which one is mising.
 
@@ -39,6 +41,7 @@ pip install numpy
 2. Put all the images you would like to process into a folder called `input`
 3. Open the repository in the terminal (Example: `cd Documents/Github/signynts-darkroom-script`)
 4. Run the script by running `python signynts-darkroom-script.py`. You will see the progress of the script begin.
-5. Done! Your output files will be put in a folder called `output`
+5. Your output files will be put in a folder called `output`. Remove the dust by opening the image in Affinity Photo and running the macro called `Remove Dust`
+6. Done! You can apply any further edits you want to your image (`Filters > Autolevel` always gives me great results), and save it!
 
 > If you have any issues please make sure the script works with the [Example.tif](https://github.com/Signynt/signynts-darkroom-shortcut/releases/download/v1.1/Example.tif) file before opening an issue.
