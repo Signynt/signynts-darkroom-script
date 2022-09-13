@@ -6,6 +6,7 @@ from os import listdir
 from skimage import img_as_float
 from skimage import exposure
 import scipy.ndimage
+import re
 
 # global variables
 cutoff_margin = 10
@@ -13,9 +14,15 @@ blur_size = (7, 7)
 QuantumRange = 65535
 GammaGlobal = 2.15
 
-# load image
+# define functions
 
-def normalize(image, low, high):
+def sorted_nicely( l ): 
+    """ Sort the given iterable in the way that humans expect.""" 
+    convert = lambda text: int(text) if text.isdigit() else text 
+    alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ] 
+    return sorted(l, key = alphanum_key)
+
+def normalize(image, low=2, high=99):
     float = img_as_float(image)
     p_low, p_high = np.percentile(float, (low, high))
     rescale = exposure.rescale_intensity(float, in_range=(p_low, p_high))
@@ -45,6 +52,7 @@ def recompile_image(r_channel, g_channel, b_channel, gamma_subtract):
     return recompiled_image
 
 def autolevel_image(image):
+    print(' Correcting levels...')
     image_gray = color.rgb2gray(image.astype(np.uint16))
 
     blackpoint = np.amin(image_gray) * QuantumRange
@@ -68,6 +76,7 @@ def autolevel_image(image):
     return autoleveled_image
 
 def autocolor_image(image):
+    print(' Correcting colors...')
     image_gray = color.rgb2gray(image.astype(np.uint16))
     r_channel, g_channel, b_channel = cv2.split(image)
 
@@ -81,15 +90,18 @@ def autocolor_image(image):
     b_ratio = neutral_gray / b_mean
 
     r_colorcorrected = np.clip((r_channel * b_ratio), 0, QuantumRange) # prevents clipping
+    r_colorcorrected = normalize(r_colorcorrected, 0.5, 99.5)
     g_colorcorrected = np.clip((g_channel * g_ratio), 0, QuantumRange)
+    g_colorcorrected = normalize(g_colorcorrected, 0.5, 99.5)
     b_colorcorrected = np.clip((b_channel * r_ratio), 0, QuantumRange)
+    b_colorcorrected = normalize(b_colorcorrected, 0.5, 99.5)
 
     autocolored_image = (cv2.merge([r_colorcorrected.astype(np.uint16), g_colorcorrected.astype(np.uint16), b_colorcorrected.astype(np.uint16)]))
 
     return autocolored_image
-# process image
  
 def negative_inversion(image_input):
+    print(' Inverting negative...')
     r_input, g_input, b_input = cv2.split(image_input)
 
     # def find_gamma(image_input, cutoff_margin):
@@ -129,6 +141,7 @@ def remove_noise(image, aggressiveness=7):
     return unnormalized
 
 def dust_removal(infrared_image, inverted_image, r_channel):
+    print(' Removing dust...')
     normalized_infrared = normalize(infrared_image, 2, 99)
     normalized_red = normalize(r_channel, 2, 99)
 
@@ -179,8 +192,8 @@ for file in os.listdir(in_dir):
     if file.endswith(".tif"):
         filenames.append(file)
 
-for file in filenames: 
-    print(file)
+for file in sorted_nicely(filenames): 
+    print('Processing ' + file + ':')
     filepath = in_dir + '/' + file
     image = signynts_darkroom_script(filepath)
     cv2.imwrite(out_dir + '/' + file, image.astype(np.uint16), params=(cv2.IMWRITE_TIFF_COMPRESSION, 5))
