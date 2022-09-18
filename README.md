@@ -15,11 +15,9 @@ It can be used with DSLR scans, and scans made with Silverfast or VueScan.
 ## Installation
 > If you are having trouble, open an [Issue](https://github.com/Signynt/signynts-darkroom-script/issues/new/choose), or DM me on [Reddit](https://www.reddit.com/user/Signynt).
 
-To install the Affinity Photo macro, simply double click on `Signynt's Darkroom Shortcut v1.0.afmacros`
-
 1. Install [Python](https://www.python.org/downloads/)
 2. [Download](https://github.com/Signynt/signynts-darkroom-script/archive/refs/heads/main.zip) or clone this repository
-3. Run initial setup by opening `setup.py` with Pyhon. (Simpy double click or `Right Click` > `Open With` > `Python Launcher 3`)
+3. Run initial setup by opening `setup.py` with Python. (Simply double click or `Right Click` > `Open With` > `Python Launcher 3`)
 4. Install either the Affinity Photo Macro or Photoshop Action found in the corresponding folders
 
 ## Usage
