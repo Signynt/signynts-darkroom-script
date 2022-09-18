@@ -17,7 +17,6 @@ GammaGlobal = 2.15
 # define functions
 
 def sorted_nicely( l ): 
-    """ Sort the given iterable in the way that humans expect.""" 
     convert = lambda text: int(text) if text.isdigit() else text 
     alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ] 
     return sorted(l, key = alphanum_key)
@@ -169,12 +168,41 @@ def dust_removal(infrared_image, inverted_image, r_channel):
     return mask
 
 def signynts_darkroom_script(file_input):
-    layered, negative_input = cv2.imreadmulti(file_input, [], cv2.IMREAD_UNCHANGED) # it returns if the image is multilayered (layered)
-    inverted_image, r_channel = negative_inversion(negative_input[0])
-    if layered:
+    layered, negative_input = cv2.imreadmulti(file_input, [], cv2.IMREAD_UNCHANGED)
+
+    if len(negative_input) == 2: # silverfast images have 2 layers
+        ir_silverfast = True
+        ir_none = False
+        ir_vuescan = False
+
+    elif len(negative_input) == 1: # vuescan images have 1 layer
+        ir_silverfast = False
+        ir_vuescan = False
+        ir_none = True
+
+        if negative_input[0].shape[2] == 4: # vuescan images have the ir layer in the alpha channel
+            ir_vuescan = True
+            ir_none = False
+
+    if ir_silverfast:
+        print(' Identified image as Silverfast scan')
+
+        inverted_image, r_channel = negative_inversion(negative_input[0])
         dust_removed = dust_removal(negative_input[1], inverted_image, r_channel)
         combined = np.dstack((inverted_image, dust_removed))
-    else:
+    elif ir_vuescan:
+        print(' Identified image as VueScan scan')
+
+        r_channel, g_channel, b_channel, ir_channel = cv2.split(negative_input[0])
+        negative_input = (cv2.merge([r_channel.astype(np.uint16), g_channel.astype(np.uint16), b_channel.astype(np.uint16)]))
+
+        inverted_image, r_channel = negative_inversion(negative_input)
+        dust_removed = dust_removal(ir_channel, inverted_image, r_channel)
+        combined = np.dstack((inverted_image, dust_removed))
+    elif ir_none:
+        print(' Identified image as non-infrared scan')
+
+        inverted_image, r_channel = negative_inversion(negative_input[0])
         combined = inverted_image
 
     return combined
