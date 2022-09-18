@@ -8,30 +8,19 @@ It consists of a Python script and an Affinity Photo macro / Photoshop action if
 Using this script gives you quick access to high quality, neutral and ready to edit RAW images with just one click. It also optionally provides access to quick and high quality dust or scratch removal that is better than the scanning softwares automatic options.  
 The output is a 16bit TIFF file, that maintains all image information from the input file.
 
-It can be used with DSLR scans, and scans made with Silverfast. For use with VueScan or B&W images, please refer to [Signynt's Darkroom Shortcut](https://github.com/Signynt/signynts-darkroom-shortcut).
+It can be used with DSLR scans, and scans made with Silverfast or VueScan.
 
 ![Github](https://user-images.githubusercontent.com/67801159/146692420-04df4cdc-dab6-494f-b414-cc3563ee55f1.png)
 
 ## Installation
 > If you are having trouble, open an [Issue](https://github.com/Signynt/signynts-darkroom-script/issues/new/choose), or DM me on [Reddit](https://www.reddit.com/user/Signynt).
 
-Download or clone this repository.
-
 To install the Affinity Photo macro, simply double click on `Signynt's Darkroom Shortcut v1.0.afmacros`
 
-### Dependencies:
-Make sure you have these dependencies installed. If you are missing one the script will throw an error, and tell you which one is mising.
-
-```
-numpy
-opencv-python
-scikit-image
-scipy
-```
-Installation example in the terminal: 
-```zsh
-pip install numpy
-```
+1. Install [Python](https://www.python.org/downloads/)
+2. [Download](https://github.com/Signynt/signynts-darkroom-script/archive/refs/heads/main.zip) or clone this repository
+3. Run initial setup by opening `setup.py` with Pyhon. (Simpy double click or `Right Click` > `Open With` > `Python Launcher 3`)
+4. Install either the Affinity Photo Macro or Photoshop Action found in the corresponding folders
 
 ## Usage
 
@@ -39,9 +28,8 @@ pip install numpy
 
 1. Open the folder containing the repository. You should see a file called `signynts-darkroom-script.py`
 2. Put all the images you would like to process into a folder called `input`
-3. Open the repository in the terminal (Example: `cd Documents/Github/signynts-darkroom-script`)
-4. Run the script by running `python signynts-darkroom-script.py`. You will see the progress of the script begin.
-5. Your output files will be put in a folder called `output`. Remove the dust by opening the image in Affinity Photo and running the macro called `Remove Dust`
-6. Done! You can apply any further edits you want to your image (`Filters > Autolevel` always gives me great results), and save it!
+3. Open `signynts_darkroom_script.py` with Python. You will begin to see it processing the files in a terminal window
+4. Your output files will be put in a folder called `output`. Remove the dust by opening the image in Affinity Photo or Photoshop and running the macro
+5. Done! You can apply any further edits you want to your image (`Filters > Autolevel` always gives me great results), and save it!
 
 > If you have any issues please make sure the script works with the [Example.tif](https://github.com/Signynt/signynts-darkroom-shortcut/releases/download/v1.1/Example.tif) file before opening an issue.
